@@ -44,11 +44,13 @@ sub cardsInfo {
 
   my $ACTION = "cardsInfo";
   my $PARAM_FIELD = "cards";
+  my %queryHash = ($PARAM_FIELD,@cardIds);
+
   tie my %request, 'Tie::IxHash';
   %request = (
     $ACTION_STR => $ACTION,
     $VERSION_STR => $VERSION_NUM,
-    $PARAMS_STR => @cardIds,
+    $PARAMS_STR => \%queryHash,
   );
   my $requestAsJSON = $JSON->encode(\%request);
   return $requestAsJSON;
@@ -59,25 +61,40 @@ Takes a JSON request and runs it to AnkiConnect.
 =cut
 sub makeRequest {
   my $JSONRequest = shift;
-  #print $JSONRequest, "\n";
 
   my $response = $ua->post($HOSTNAME, Content => $JSONRequest);
-  my $decoded_content = $response->decoded_content;
+  my $decodedContent = $response->decoded_content;
   if ($response->is_success) {
-      return $decoded_content
+      return $decodedContent;
   } else {
       die $response->status_line;
   }
 }
 
-my $decoded_content = makeRequest findCards;
-my $ref = $JSON->decode($decoded_content);
+#JSON result of making the findCards request.
+#my $result = makeRequest findCards;
+#A reference to the hash that decode returns
+#my $ref = $JSON->decode($result);
+#The hash dereferenced
+#my %resultHash = %$ref;
+#The 'result' field of the hash that holds my card IDs.
+#my $cardIdArrayRef = $resultHash{'result'};
+#The card IDs.
+#my @cardIds = @$cardIdArrayRef;
+#A smaller version so we don't get overwhelmed while debugging
+#my @subset = @cardIds[0..10];
+
+my @subset = (1660318545875, 1660318614275, 1660318884050, 1660319189883, 1660319321405, 1660319468185, 1660319595806, 1660319820974, 
+1660319920392, 1660320013126, 1660320080062);
+my $result = makeRequest cardsInfo \@subset;
+my $ref = $JSON->decode($result);
 my %resultHash = %$ref;
-my $cardIdArrayRef = $resultHash{'result'};
-my @cardIds = @$cardIdArrayRef;
 
+my $file = "./resultHash.txt";
+open FILE, ">$file" or die "$!";
+print FILE Dumper(%resultHash);
+close FILE;
 
-#IT'S THE RIGHT SIZE, BABY!!!
 
 #Import card deck, that lists ALL the cards, and return whatever it returns as, likely an array. One card per index pls?
 #Iterate through each card (match it with a few regexes for card type). Then if it's a certain type,
