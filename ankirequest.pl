@@ -90,10 +90,12 @@ my $result = makeRequest cardsInfo \@subset;
 my $ref = $JSON->decode($result);
 my %resultHash = %$ref;
 
-my $file = "./resultHash.txt";
-open FILE, ">$file" or die "$!";
-print FILE Dumper(%resultHash);
-close FILE;
+
+
+# my $file = "./resultHash.txt";
+# open FILE, ">$file" or die "$!";
+# print FILE Dumper(%resultHash);
+# close FILE;
 
 
 #Import card deck, that lists ALL the cards, and return whatever it returns as, likely an array. One card per index pls?
