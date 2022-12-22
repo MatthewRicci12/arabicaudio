@@ -14,6 +14,19 @@ Readonly my $VERSION_NUM => 6;
 Readonly my $PARAMS_STR => "params";
 my $ua = LWP::UserAgent->new();
 my $JSON = JSON->new->allow_nonref;
+my $arabicRegex = getArabicRegex();
+
+sub getArabicRegex {
+    my $arabicRegex = '[';
+    foreach (0x601..0x6FF) {
+        $arabicRegex .= '\x{' . sprintf("%X", $_) . '}';
+    }
+    # foreach (0xFE8D..0xFEF0) {
+    #     $arabicRegex .= '\x{' . sprintf("%X", $_) . '}';
+    # }
+    $arabicRegex .= ']+';
+    return $arabicRegex;
+}
 
 =for comment
 Creates the anki API findCards request and returns the JSON string.
@@ -89,6 +102,28 @@ my @subset = (1660318545875, 1660318614275, 1660318884050, 1660319189883, 166031
 my $result = makeRequest cardsInfo \@subset;
 my $ref = $JSON->decode($result);
 my %resultHash = %$ref;
+my $a = $resultHash{'result'}; #Ref to array
+my @b = @$a;
+#HASH(0x3069388) HASH(0x3878cd8) HASH(0x38790c8) HASH(0x3872480) HASH(0x3872870) HASH(0x3872c60) HASH(0x3873050) HASH(0x3874488) 
+
+#Could just literally filter it based on if it has the key 'recording'.
+my $file = "./arabicWords.txt";
+open FILE, ">$file" or die "$!";
+foreach (@b) {
+  my %cur = %$_; #Current card !!!!!!!!!!!!!!!!!!!!!!!!!
+  my $arabicWord = $cur{'fields'}{'Answer'}{'value'};
+  if ($arabicWord =~ $arabicRegex) {
+    print FILE "$&\n";
+  }
+}
+close FILE;
+
+
+=for comment
+1. Current card is simply a hash. Either convert it to a string, or find the hash field that has the Arabic.
+2. Write that Arabic to a file.
+=cut
+
 
 
 
