@@ -10,22 +10,12 @@ use open ':std', ':encoding(UTF-8)';
 #use utf8;
 #print $&, "\n";
 
-sub getWordRegex {
-    my $word = shift;
-    my $regex = substr($word, 0, 1);
-    foreach (1..(length($word)-1)) {
-        $regex .= "\\w*" . substr($word, $_, 1);
-    }
-    return $regex;
-}
+my $num = 0b1010001111111001;
+my $length = 16;
+my $result = 0;
 
+$num = $num >> ($length - 4);
+$num = $num << ($length - 4);
+#print sprintf("%b", $num);
 
-my $str = "\x{0642}\x{0637}\x{0629}";
-my $toMatch = "\x{0642}\x{0640}\x{064f}\x{0637}\x{0651}\x{0640}\x{064e}\x{0629}"; 
-my $regex = getWordRegex $str;
-if ($toMatch =~ /$regex/) {
-    print "Success!\n";
-}
-#\x{0642}\x{0637}\x{0629}
-
-
+print ('' eq '');
